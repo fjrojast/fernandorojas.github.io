@@ -1,0 +1,64 @@
+---
+title: "Radiografía de Unión de Tula"
+author: "Fernando Rojas de la Torre"
+date: "2022-11-20"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+options(scipen=999)
+knitr::opts_chunk$set(echo = TRUE)
+
+library(readr)
+library(tidyverse)
+library(magrittr)
+
+
+
+
+
+
+censo <- read_csv("~/Descargas/iter_14_cpv2020_csv/iter_14_cpv2020/conjunto_de_datos/conjunto_de_datos_iter_14CSV20.csv")
+
+censo %<>% 
+  filter(NOM_MUN=="Unión de Tula") #%>% 
+  # select(NOM_LOC ,ends_with("_F"),ends_with("_M"))
+    # distinct(NOM_MUN) %>% view
+
+    
+    
+diccionario <- read_csv("/home/frojas/Descargas/iter_14_cpv2020_csv/iter_14_cpv2020/diccionario_datos/diccionario_datos_iter_14CSV20.csv",skip=4)   %>% 
+  select(Indicador,Descripción,Mnemónico)
+    
+
+# diccionario %>% glimpse
+# censo %>% glimpse
+
+# names(censo) %>%as_tibble() %>% t %>% as_tibble() %>%  bind_(censo)
+censo %<>% 
+  mutate(across(8:ncol(.),as.character)) %>% 
+  pivot_longer(cols=8:ncol(.)) %>% 
+  mutate(value=value %>% as.numeric()) %>% 
+  filter(!is.na(value)) 
+  
+censo %<>%
+  left_join(diccionario,by=c("name"="Mnemónico")) %>% 
+  mutate(genero=case_when(grepl("_F",name)~"Femenino",
+                          grepl("_M",name)~"Masculino")
+    
+  ) %>% 
+  separate(name,into=c("cat_main","cat_sub","cat_sub2","cat_sub3"),sep="_")
+censo %<>% 
+  select(5:15)
+
+
+```
+
+El presente documento aborda las dimensiones valoral, social e institucional del municipio de Unión de Tula, perteneciente al estado de Jalisco. Unión de Tula es un municipio de `r censo %>% filter(cat_main=="POBTOT",NOM_LOC=="Total del Municipio") %>% select(value)` habitantes. Está ubicado a una distancia de aproximadamente 180 kilómetros de la ciudad de Guadalajara que es la capital del estado. 
+A partir de los datos obtenidos en el censo del Instituto Nacional de Geografía y Estadística del año 2020, elaboré las siguientes gráficas para crear un contexto respecto al municipio.
+
+```{r}
+
+```
